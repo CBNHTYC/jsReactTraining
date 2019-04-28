@@ -3,6 +3,9 @@ import Info from "./components/Info";
 import Form from "./components/Form";
 import Detail from "./components/Detail";
 import DetailSimple from "./components/DetailSimple";
+import Head from "./components/Head";
+import SearchPanel from "./components/searchPanel/SearchPanel";
+
 
 const BASE_URI = "http://localhost:8080/fc/rest";
 
@@ -44,14 +47,26 @@ class App extends React.Component {
 
     render() {
         return (
-            <div>
-                <Info/>
-                <Form getDetails={this.getDetails}/>
-                <DetailSimple
-                    id={this.state.id}
-                    name={this.state.name}
-                    error={this.state.error}
-                />
+            <div className="wrapper">
+                <Head />
+                <SearchPanel />
+                {/*<div className="main">*/}
+                {/*<div className="container">*/}
+                {/*<div className="row">*/}
+                {/*<div className="col-sm-5 info">*/}
+                {/*<Info/>*/}
+                {/*</div>*/}
+                {/*<div className="col-sm-7 form">*/}
+                {/*<Form getDetails={this.getDetails}/>*/}
+                {/*<DetailSimple*/}
+                {/*id={this.state.id}*/}
+                {/*name={this.state.name}*/}
+                {/*error={this.state.error}*/}
+                {/*/>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
             </div>
         );
     }

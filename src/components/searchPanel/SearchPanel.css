@@ -1,0 +1,9 @@
+.parameter-list.scrollable {
+    height: auto;
+    max-height: 15em;
+    overflow-x: hidden;
+}
+
+.main-row {
+    margin: 1em;
+}

@@ -2,7 +2,7 @@ import React from "react";
 
 const DetailSimple = (props) => {
     return (
-        <div>
+        <div className="infoWeath">
             {props.id &&
             <div>
                 <p>ID: {props.id}</p>
@@ -10,7 +10,7 @@ const DetailSimple = (props) => {
             </div>
             }
             {props.error &&
-            <p>Error: {props.error}</p>
+            <p className="error">Error: {props.error}</p>
             }
         </div>
     );
