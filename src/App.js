@@ -49,8 +49,7 @@ class App extends React.Component {
         return (
             <div className="wrapper">
                 <Head />
-                <SearchPanel />
-                {/*<div className="main">*/}
+                <SearchPanel />{/*<div className="main">*/}
                 {/*<div className="container">*/}
                 {/*<div className="row">*/}
                 {/*<div className="col-sm-5 info">*/}
