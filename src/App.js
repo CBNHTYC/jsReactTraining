@@ -4,7 +4,7 @@ import Form from "./components/Form";
 import Detail from "./components/Detail";
 import DetailSimple from "./components/DetailSimple";
 import Head from "./components/Head";
-import SearchPanel from "./components/searchPanel/SearchPanel";
+import MainPanel from "./components/searchPanel/MainPanel";
 
 
 const BASE_URI = "http://localhost:8080/fc/rest";
@@ -49,7 +49,7 @@ class App extends React.Component {
         return (
             <div className="wrapper">
                 <Head />
-                <SearchPanel />{/*<div className="main">*/}
+                <MainPanel />{/*<div className="main">*/}
                 {/*<div className="container">*/}
                 {/*<div className="row">*/}
                 {/*<div className="col-sm-5 info">*/}

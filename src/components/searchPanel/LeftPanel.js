@@ -1,5 +1,4 @@
 import React from "react";
-import DetailName from './DetailName'
 
 const BASE_URI = "http://localhost:8080/fc/rest";
 const PHONES = "phones";
@@ -40,9 +39,6 @@ class LeftPanel extends React.Component {
     render() {
         return (
             <div>
-                <div className="accordion" id="accordionExample">
-                    <DetailName/>
-                </div>
             </div>
         );
     }
