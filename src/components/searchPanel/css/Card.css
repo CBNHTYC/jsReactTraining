@@ -1,0 +1,10 @@
+.card {
+    width: 18rem;
+    margin: 1em;
+}
+
+.card-img {
+    max-height: 185px;
+    max-width: 185px;
+
+}

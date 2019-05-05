@@ -7,6 +7,7 @@ class MainPanel extends React.Component {
     constructor() {
         super();
         this.state = {
+            changed: false,
             isVenAcer: false,
             isVenFly: false,
             isTypeSmart: false,
@@ -71,13 +72,15 @@ class MainPanel extends React.Component {
     };
 
     onSubmit = (e) => {
-        e.preventDefault();
-
+        this.setState(prevState => ({
+            changed: !prevState.changed,
+        }));
     };
 
     onClear = (e) => {
         e.preventDefault();
         this.setState({
+            changed: false,
             isVenAcer: false,
             isVenFly: false,
             isTypeSmart: false,

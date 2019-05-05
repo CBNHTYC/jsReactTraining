@@ -1,35 +1,101 @@
 import React from "react";
+import Card from "./Card";
+import RowCard from "./RowCard";
+
+const BASE_URI = "http://localhost:8080/fc/rest";
+const MOST_VIEWED_URI = "/getMostViewedPhoneList";
+const GET_BY_PARAMS_URI = "/getPhones";
+const PHONES = "phones";
+let phoneTypeList = undefined;
+
+let simpleParameter = [];
+let rangeParameter = [];
+
 
 class CardPanel extends React.Component {
+
+    constructor() {
+        super();
+        this.state = {
+            modelId: undefined,
+            ParametrizedQuery: [simpleParameter, rangeParameter],
+            phones: undefined
+        };
+    };
+
+    componentDidMount() {
+        this.redraw();
+    }
+
+    redraw = async () => {
+        if (!(this.props.changed)) {
+            this.getDefault();
+        }
+        if (this.props.changed) {
+            let singleParam = {};
+            if (this.props.isRam05) {
+                singleParam = {name: "ram", value: "0.5"};
+                simpleParameter.push(singleParam)
+            }
+        }
+    };
+
+    getDefault = async () => {
+        console.log("GBCZ");
+        const apiUrl = await fetch(`${BASE_URI}${MOST_VIEWED_URI}`);
+        const data = await apiUrl.json();
+        console.log(data);
+        phoneTypeList = data.phoneTypeList.map(item => item);
+        this.setState({
+            phones: phoneTypeList.map(phone => {
+                return (
+                    <Card
+                        id={phone.model.modelId}
+                        vendor={phone.model.vendor}
+                        model={phone.model.modelName}
+                        description={phone.model.description}
+                    />
+                )
+            })
+        })
+    };
+
+    getByParams = async () => {
+        const apiUrl = await fetch(`${BASE_URI}${GET_BY_PARAMS_URI}`, {
+            method: 'get',
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify(this.state.ParametrizedQuery)
+        });
+
+        const data = await apiUrl.json();
+        console.log(data);
+        phoneTypeList = data.phoneTypeList.map(item => item);
+        this.setState({
+            phones: phoneTypeList.map(phone => {
+                return (
+                    <RowCard
+                        id={phone.model.modelId}
+                        vendor={phone.model.vendor}
+                        model={phone.model.modelName}
+                        description={phone.model.description}
+                        price={phone.model.price}
+                    />
+                )
+            })
+        })
+    };
+
+    getById = async () => {
+
+    };
+
     render() {
         return (
             <div>
-                <div className="card mb-3">
-                    <div className="row no-gutters">
-                        <div className="col-md-4">
-                            <img src={require('../../img/fruit.jpg')} className="card-img" alt="..."/>
-                        </div>
-                        <div className="col-md-8">
-                            <div className="card-body">
-                                <h5 className="card-title">Грейпфрутова карточка</h5>
-                                <p className="card-text">Отче наш, Иже еси на небесех!
-                                    Да святится имя Твое,
-                                    да приидет Царствие Твое,
-                                    да будет воля Твоя,
-                                    яко на небеси и на земли.
-                                    Хлеб наш насущный даждь нам днесь;
-                                    и остави нам долги наша,
-                                    якоже и мы оставляем должником нашим;
-                                    и не введи нас во искушение,
-                                    но избави нас от лукаваго.
-                                    Ибо Твое есть Царство и сила и слава во веки.
-                                    Аминь.</p>
-                                <p className="card-text">
-                                    <small className="text-muted">Last updated 3 mins ago</small>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                <div className="row">
+                    {this.state.phones}
                 </div>
             </div>
         );
