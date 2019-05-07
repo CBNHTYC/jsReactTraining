@@ -1,9 +1,3 @@
-.parameter-list.scrollable {
-    height: auto;
-    max-height: 15em;
-    overflow-x: hidden;
-}
-
 .main-row {
     margin: 1em;
 }
@@ -14,24 +8,4 @@
 
 .card-body {
     margin: 1em;
-}
-
-.form-group {
-    margin: 0.5em;
-}
-
-.btn.btn-outline-dark.right {
-    margin-left: 6em;
-}
-
-.row.align-items-center {
-    margin-top: 0.5em;
-}
-
-.btn.btn-link {
-    color: #484747;
-}
-
-.form-control {
-    color: black !important;
 }

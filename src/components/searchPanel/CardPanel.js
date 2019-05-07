@@ -28,36 +28,50 @@ class CardPanel extends React.Component {
     }
 
     redraw = async () => {
+        console.log(3);
         if (!(this.props.changed)) {
             this.getDefault();
         }
+
         if (this.props.changed) {
+            simpleParameter = [];
+            rangeParameter = [];
             let singleParam = {};
             if (this.props.isRam05) {
                 singleParam = {name: "ram", value: "0.5"};
-                simpleParameter.push(singleParam)
+                simpleParameter.push(singleParam);
             }
+            this.getByParams();
         }
     };
 
     getDefault = async () => {
-        console.log("GBCZ");
-        const apiUrl = await fetch(`${BASE_URI}${MOST_VIEWED_URI}`);
-        const data = await apiUrl.json();
-        console.log(data);
-        phoneTypeList = data.phoneTypeList.map(item => item);
-        this.setState({
-            phones: phoneTypeList.map(phone => {
-                return (
-                    <Card
-                        id={phone.model.modelId}
-                        vendor={phone.model.vendor}
-                        model={phone.model.modelName}
-                        description={phone.model.description}
-                    />
-                )
+        try {
+            const apiUrl = await fetch(`${BASE_URI}${MOST_VIEWED_URI}`);
+            const data = await apiUrl.json();
+            console.log(data);
+            phoneTypeList = data.phoneTypeList.map(item => item);
+            this.setState({
+                phones: phoneTypeList.map(phone => {
+                    return (
+                        <Card
+                            id={phone.model.modelId}
+                            vendor={phone.model.vendor}
+                            model={phone.model.modelName}
+                            description={phone.model.description}
+                        />
+                    )
+                })
             })
-        })
+        } catch (e) {
+            console.log(e);
+            return (
+                <div>
+                    <text>АШИПКА</text>
+                </div>
+            )
+        }
+
     };
 
     getByParams = async () => {
