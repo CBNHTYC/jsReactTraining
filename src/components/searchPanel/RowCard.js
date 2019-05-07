@@ -5,7 +5,7 @@ const RowCard = (props) => {
     return (
         <div className="card mb-3">
             <div className="row no-gutters">
-                <div className="col-md-4">
+                <div className="col-md-3">
                     <img src={require('../../img/fruit.jpg')} className="card-img" alt="..."/>
                 </div>
                 <div className="col-md-8">

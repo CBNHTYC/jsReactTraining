@@ -1,6 +1,17 @@
 import React from "react";
 import './css/MainPanel.css';
-import CardPanel from './CardPanel'
+import Card from "./Card";
+import FilterPanel from "./FilterPanel";
+import RowCard from "./RowCard";
+
+const BASE_URI = "http://localhost:8080/fc/rest";
+const MOST_VIEWED_URI = "/getMostViewedPhoneList";
+const GET_BY_PARAMS_URI = "/getPhones";
+const PHONES = "phones";
+let phoneTypeList = undefined;
+
+let simpleParameter = [];
+let rangeParameter = [];
 
 class MainPanel extends React.Component {
 
@@ -8,6 +19,8 @@ class MainPanel extends React.Component {
         super();
         this.state = {
             changed: false,
+            phones: undefined,
+            ParametrizedQuery: [],
             isVenAcer: false,
             isVenFly: false,
             isTypeSmart: false,
@@ -21,6 +34,10 @@ class MainPanel extends React.Component {
             accumBeg: undefined,
             accumEnd: undefined
         };
+    };
+
+    componentDidMount() {
+        this.renderCardPanel();
     };
 
     togChSim1 = () => {
@@ -72,15 +89,17 @@ class MainPanel extends React.Component {
     };
 
     onSubmit = (e) => {
-        this.setState(prevState => ({
-            changed: !prevState.changed,
-        }));
+        e.preventDefault();
+        this.setState({
+            changed: true
+        });
+        console.log("onSubmit");
+        this.renderCardPanel();
     };
 
     onClear = (e) => {
         e.preventDefault();
         this.setState({
-            changed: false,
             isVenAcer: false,
             isVenFly: false,
             isTypeSmart: false,
@@ -94,8 +113,6 @@ class MainPanel extends React.Component {
             accumBeg: undefined,
             accumEnd: undefined
         });
-        document.getElementsByClassName("form-check-input").checked = false;
-        document.getElementsByClassName("form-control").value = "";
     };
 
     onChInpPriceBeg = (event) => {
@@ -116,10 +133,179 @@ class MainPanel extends React.Component {
     onChInpAccEnd = (event) => {
         event.preventDefault();
         this.setState({accumEnd: event.target.value})
+        console.log(this.state)
     };
 
-    getPhones = (event) => {
+    renderCardPanel = () => {
+        console.log("renderCardPanel");
 
+        simpleParameter = [];
+        rangeParameter = [];
+        let singleParam = {};
+        let rangeParam = {};
+        let changed = false;
+
+        if (this.state.isRam05) {
+            singleParam = {name: "ram", value: "0.5"};
+            simpleParameter.push(singleParam);
+            changed = true;
+        }
+
+        if (this.state.isRam1) {
+            singleParam = {name: "ram", value: "1"};
+            simpleParameter.push(singleParam);
+            changed = true;
+        }
+
+        if (this.state.isVenFly) {
+            singleParam = {name: "vendor", value: "Fly"};
+            simpleParameter.push(singleParam);
+            changed = true;
+        }
+
+        if (this.state.isVenAcer) {
+            singleParam = {name: "vendor", value: "Acer"};
+            simpleParameter.push(singleParam);
+            changed = true;
+        }
+
+        if (this.state.isTypePhone) {
+            singleParam = {name: "type", value: "Телефон"};
+            simpleParameter.push(singleParam);
+            changed = true;
+        }
+
+        if (this.state.isTypeSmart) {
+            singleParam = {name: "type", value: "Смартфон"};
+            simpleParameter.push(singleParam);
+            changed = true;
+        }
+
+        if (this.state.isSim1) {
+            singleParam = {name: "sim", value: "есть"};
+            simpleParameter.push(singleParam);
+            changed = true;
+        }
+
+        if (this.state.isSim2) {
+            singleParam = {name: "sim", value: "нет"};
+            simpleParameter.push(singleParam);
+            changed = true;
+        }
+
+        if (this.state.priceBeg) {
+            if (this.state.priceEnd) {
+                rangeParam = {name: "price", valueBegin: this.state.priceBeg, valueEnd: this.state.priceEnd};
+            } else {
+                rangeParam = {name: "price", valueBegin: this.state.priceBeg, valueEnd: "190000"};
+            }
+            rangeParameter.push(rangeParam);
+            changed = true;
+        } else if (this.state.priceEnd) {
+            rangeParam = {name: "price", valueBegin: "0", valueEnd: this.state.priceEnd};
+            rangeParameter.push(rangeParam);
+            changed = true;
+        }
+
+        if (this.state.accumBeg) {
+            if (this.state.accumEnd) {
+                rangeParam = {name: "price", valueBegin: this.state.accumBeg, valueEnd: this.state.accumEnd};
+            } else {
+                rangeParam = {name: "price", valueBegin: this.state.accumBeg, valueEnd: "190000"};
+            }
+            rangeParameter.push(rangeParam);
+            changed = true;
+        } else if (this.state.accumEnd) {
+            rangeParam = {name: "price", valueBegin: "0", valueEnd: this.state.accumEnd};
+            rangeParameter.push(rangeParam);
+            changed = true;
+        }
+
+        this.setState({
+            changed: changed
+        });
+
+        if (changed) {
+            this.getByParams();
+        } else {
+            this.getDefault();
+        }
+    };
+
+    getDefault = async () => {
+        try {
+            const apiUrl = await fetch(`${BASE_URI}${MOST_VIEWED_URI}`);
+            const data = await apiUrl.json();
+            phoneTypeList = data.phoneTypeList.map(item => item);
+            this.setState({
+                phones: phoneTypeList.map(phone => {
+                    return (
+                        <Card
+                            id={phone.model.modelId}
+                            vendor={phone.model.vendor}
+                            model={phone.model.modelName}
+                            description={phone.model.description}
+                        />
+                    )
+                })
+            });
+        } catch (e) {
+            console.log(e);
+            return (
+                <div>
+                    <text>АШИПКА</text>
+                </div>
+            )
+        }
+
+    };
+
+    getByParams = async () => {
+        let query = {};
+        if (simpleParameter.length > 0) {
+            if (rangeParameter.length > 0) {
+                query = {
+                    simpleParameter,
+                    rangeParameter
+                }
+            } else {
+                query = {
+                    simpleParameter
+                }
+            }
+        } else if (rangeParameter.length > 0) {
+            query = {
+                rangeParameter
+            }
+        }
+
+        console.log(JSON.stringify(query));
+        console.log(`${BASE_URI}${GET_BY_PARAMS_URI}`);
+
+        const apiUrl = await fetch(`${BASE_URI}${GET_BY_PARAMS_URI}`, {
+            method: 'POST',
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify(query)
+        });
+        const data = await apiUrl.json();
+        console.log(data);
+        phoneTypeList = data.phoneTypeList.map(item => item);
+        this.setState({
+            phones: phoneTypeList.map(phone => {
+                return (
+                    <RowCard
+                        id={phone.model.modelId}
+                        vendor={phone.model.vendor}
+                        model={phone.model.modelName}
+                        description={phone.model.description}
+                        price={phone.model.price}
+                    />
+                )
+            })
+        });
+        console.log(this.state.phones);
     };
 
     render() {
@@ -127,252 +313,33 @@ class MainPanel extends React.Component {
             <div className="container-fluid main">
                 <div className="row main-row">
                     <div className="col-md-2">
-                        <div>
-                            <div className="accordion" id="accordionExample">
-                                <form>
-                                    <div className="detailName">
-                                        <div className="card-header" id="headingPrice">
-                                            <h5 className="mb-0">
-                                                <button className="btn btn-link" type="button" data-toggle="collapse"
-                                                        data-target="#collapsePrice" aria-expanded="true"
-                                                        aria-controls="collapsePrice">
-                                                    Цена
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapsePrice" className="collapse" aria-labelledby="headingPrice"
-                                             data-parent="#accordionExample">
-                                            <div className="parameter-list scrollable">
-                                                <div className="row align-items-center">
-                                                    <div className="col-auto">
-                                                        <label className="sr-only" htmlFor="inlineFormInputGroup">Имя
-                                                            пользователя</label>
-                                                        <div className="input-group mb-2">
-                                                            <div className="input-group-prepend">
-                                                                <div className="input-group-text">От</div>
-                                                            </div>
-                                                            <input type="text" className="form-control"
-                                                                   name="inputPriceBeg"
-                                                                   id="inputPriceBeg"
-                                                                   placeholder="0"
-                                                                   defaultValue=""
-                                                                   onChange={this.onChInpPriceBeg}/>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-auto">
-                                                        <label className="sr-only" htmlFor="inlineFormInputGroup">Имя
-                                                            пользователя</label>
-                                                        <div className="input-group mb-2">
-                                                            <div className="input-group-prepend">
-                                                                <div className="input-group-text">До</div>
-                                                            </div>
-                                                            <input type="text" className="form-control"
-                                                                   name="inputPriceEnd"
-                                                                   id="inputPriceEnd"
-                                                                   placeholder="190000"
-                                                                   defaultValue=""
-                                                                   onChange={this.onChInpPriceEnd}/>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="detailName">
-                                        <div className="card-header" id="headingVendor">
-                                            <h5 className="mb-0">
-                                                <button className="btn btn-link" type="button" data-toggle="collapse"
-                                                        data-target="#collapseVendor" aria-expanded="true"
-                                                        aria-controls="collapseVendor">
-                                                    Производитель
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseVendor" className="collapse" aria-labelledby="headingVendor"
-                                             data-parent="#accordionExample">
-                                            <div className="parameter-list scrollable">
-                                                <li className="list-group-item">
-                                                    <input className="form-check-input" type="checkbox" value=""
-                                                           checked={this.state.isVenAcer}
-                                                           onChange={this.togChVenAcer} id="checkVenAcer"/>
-                                                    <label className="form-check-label" htmlFor="checkVenAcer">
-                                                        Acer
-                                                    </label>
-                                                </li>
-                                                <li className="list-group-item">
-                                                    <input className="form-check-input" type="checkbox" value=""
-                                                           checked={this.state.isVenFly}
-                                                           onChange={this.togChVenFly} id="checkVenFly"/>
-                                                    <label className="form-check-label" htmlFor="checkVenFly">
-                                                        Fly
-                                                    </label>
-                                                </li>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="detailName">
-                                        <div className="card-header" id="headingType">
-                                            <h5 className="mb-0">
-                                                <button className="btn btn-link" type="button" data-toggle="collapse"
-                                                        data-target="#collapseType" aria-expanded="true"
-                                                        aria-controls="collapseType">
-                                                    Тип
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseType" className="collapse" aria-labelledby="headingType"
-                                             data-parent="#accordionExample">
-                                            <div className="parameter-list scrollable">
-                                                <li className="list-group-item">
-                                                    <input className="form-check-input" type="checkbox" value=""
-                                                           checked={this.state.isTypePhone}
-                                                           onChange={this.togChTypePhone} id="checkTypePhone"/>
-                                                    <label className="form-check-label" htmlFor="checkTypePhone">
-                                                        Телефон
-                                                    </label>
-                                                </li>
-                                                <li className="list-group-item">
-                                                    <input className="form-check-input" type="checkbox" value=""
-                                                           checked={this.state.isTypeSmart}
-                                                           onChange={this.togChTypeSmart} id="checkTypeSmart"/>
-                                                    <label className="form-check-label" htmlFor="checkTypeSmart">
-                                                        Смартфон
-                                                    </label>
-                                                </li>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="detailName">
-                                        <div className="card-header" id="headingRam">
-                                            <h5 className="mb-0">
-                                                <button className="btn btn-link" type="button" data-toggle="collapse"
-                                                        data-target="#collapseRam" aria-expanded="true"
-                                                        aria-controls="collapseRam">
-                                                    ОЗУ
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseRam" className="collapse" aria-labelledby="headingRam"
-                                             data-parent="#accordionExample">
-                                            <div className="parameter-list scrollable">
-                                                <li className="list-group-item">
-                                                    <input className="form-check-input" type="checkbox" value=""
-                                                           checked={this.state.isRam05}
-                                                           onChange={this.togChRam05} id="checkRam05"/>
-                                                    <label className="form-check-label" htmlFor="checkRam05">
-                                                        0.5
-                                                    </label>
-                                                </li>
-                                                <li className="list-group-item">
-                                                    <input className="form-check-input" type="checkbox" value=""
-                                                           checked={this.state.isRam1}
-                                                           onChange={this.togChRam1} id="checkRam1"/>
-                                                    <label className="form-check-label" htmlFor="checkRam1">
-                                                        1
-                                                    </label>
-                                                </li>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="detailName">
-                                        <div className="card-header" id="headingAccum">
-                                            <h5 className="mb-0">
-                                                <button className="btn btn-link" type="button" data-toggle="collapse"
-                                                        data-target="#collapseAccum" aria-expanded="true"
-                                                        aria-controls="collapseAccum">
-                                                    Аккумулятор
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseAccum" className="collapse" aria-labelledby="headingAccum"
-                                             data-parent="#accordionExample">
-                                            <div className="parameter-list scrollable">
-                                                <div className="row align-items-center">
-                                                    <div className="col-auto">
-                                                        <label className="sr-only" htmlFor="inlineFormInputGroup">Имя
-                                                            пользователя</label>
-                                                        <div className="input-group mb-2">
-                                                            <div className="input-group-prepend">
-                                                                <div className="input-group-text">От</div>
-                                                            </div>
-                                                            <input type="text" className="form-control"
-                                                                   name="inputAccumBeg"
-                                                                   id="inputAccumBeg"
-                                                                   placeholder="0"
-                                                                   defaultValue=""
-                                                                   onChange={this.onChInpAccBeg}/>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-auto">
-                                                        <label className="sr-only" htmlFor="inlineFormInputGroup">Имя
-                                                            пользователя</label>
-                                                        <div className="input-group mb-2">
-                                                            <div className="input-group-prepend">
-                                                                <div className="input-group-text">До</div>
-                                                            </div>
-                                                            <input type="text" className="form-control"
-                                                                   name="inputAccumEnd"
-                                                                   id="inputAccumEnd"
-                                                                   placeholder="190000"
-                                                                   defaultValue=""
-                                                                   onChange={this.onChInpAccEnd}/>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="detailName">
-                                        <div className="card-header" id="headingSim">
-                                            <h5 className="mb-0">
-                                                <button className="btn btn-link" type="button" data-toggle="collapse"
-                                                        data-target="#collapseSim" aria-expanded="true"
-                                                        aria-controls="collapseSim">
-                                                    Кол-во sim
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseSim" className="collapse" aria-labelledby="headingSim"
-                                             data-parent="#accordionExample">
-                                            <div className="parameter-list scrollable">
-                                                <li className="list-group-item">
-                                                    <input className="form-check-input" type="checkbox" value=""
-                                                           checked={this.state.isSim1}
-                                                           onChange={this.togChSim1} id="checkSim1"/>
-                                                    <label className="form-check-label" htmlFor="checkSim1">
-                                                        1
-                                                    </label>
-                                                </li>
-                                                <li className="list-group-item">
-                                                    <input className="form-check-input" type="checkbox" value=""
-                                                           checked={this.state.isSim2}
-                                                           onChange={this.togChSim2} id="checkSim2"/>
-                                                    <label className="form-check-label" htmlFor="checkSim2">
-                                                        2
-                                                    </label>
-                                                </li>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="form-group" onClick={this.onSubmit}>
-                                        <button className="btn btn-dark">
-                                            Принять
-                                        </button>
-                                        <button className="btn btn-outline-dark right" onClick={this.onClear}>
-                                            Сброс
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                        <FilterPanel
+                            foreingState={this.state}
+                            onChInpPriceBeg={this.onChInpPriceBeg}
+                            onChInpPriceEnd={this.onChInpPriceEnd}
+                            togChVenAcer={this.togChVenAcer}
+                            togChVenFly={this.togChVenFly}
+                            togChTypePhone={this.togChTypePhone}
+                            togChTypeSmart={this.togChTypeSmart}
+                            togChRam05={this.togChRam05}
+                            togChRam1={this.togChRam1}
+                            onChInpAccBeg={this.onChInpAccBeg}
+                            onChInpAccEnd={this.onChInpAccEnd}
+                            togChSim1={this.togChSim1}
+                            togChSim2={this.togChSim2}
+                            onSubmit={this.onSubmit}
+                            onClear={this.onClear}
+                        />
                     </div>
                     <div className="col-md-8">
-                        <CardPanel params={this.state}/>
+                        {!this.state.changed &&
+                            <div className="row">
+                                {this.state.phones}
+                            </div>
+                        }
+                        {this.state.changed &&
+                            this.state.phones
+                        }
                     </div>
                 </div>
             </div>

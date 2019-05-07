@@ -200,8 +200,7 @@ const FilterPanel = (props) => {
                                                    name="inputAccumEnd"
                                                    id="inputAccumEnd"
                                                    placeholder="190000"
-                                                   value={props.accumEnd}
-                                                // defaultValue={props.accumEnd}
+                                                   defaultValue=""
                                                    onChange={props.onChInpAccEnd}
                                                    onSubmit={props.onChInpAccEnd}
                                                    onBlur={props.onChInpAccEnd}/>
@@ -249,7 +248,7 @@ const FilterPanel = (props) => {
                             Принять
                         </button>
                         <button className="btn btn-outline-dark right" onClick={props.onClear}>
-                            {props.accumEnd}
+                            Сброс
                         </button>
                     </div>
                 </form>

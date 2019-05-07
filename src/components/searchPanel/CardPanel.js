@@ -21,23 +21,19 @@ class CardPanel extends React.Component {
             ParametrizedQuery: [simpleParameter, rangeParameter],
             phones: undefined
         };
+        console.log("CardPanelConstructor")
     };
 
-    componentDidMount() {
-        this.redraw();
-    }
-
-    redraw = async () => {
-        console.log(3);
-        if (!(this.props.changed)) {
+    redraw = () => {
+        if (!(this.props.params.changed)) {
             this.getDefault();
         }
 
-        if (this.props.changed) {
+        if (this.props.params.changed) {
             simpleParameter = [];
             rangeParameter = [];
             let singleParam = {};
-            if (this.props.isRam05) {
+            if (this.props.params.isRam05) {
                 singleParam = {name: "ram", value: "0.5"};
                 simpleParameter.push(singleParam);
             }
@@ -62,7 +58,7 @@ class CardPanel extends React.Component {
                         />
                     )
                 })
-            })
+            });
         } catch (e) {
             console.log(e);
             return (
@@ -83,6 +79,7 @@ class CardPanel extends React.Component {
             body: JSON.stringify(this.state.ParametrizedQuery)
         });
 
+        console.log(JSON.stringify(this.state.ParametrizedQuery));
         const data = await apiUrl.json();
         console.log(data);
         phoneTypeList = data.phoneTypeList.map(item => item);
