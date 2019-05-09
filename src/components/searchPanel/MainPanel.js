@@ -3,11 +3,14 @@ import './css/MainPanel.css';
 import Card from "./Card";
 import FilterPanel from "./FilterPanel";
 import RowCard from "./RowCard";
+import Head from "../Head";
+import PhoneInfo from "./PhoneInfo";
 
 const BASE_URI = "http://localhost:8080/fc/rest";
 const MOST_VIEWED_URI = "/getMostViewedPhoneList";
 const GET_BY_PARAMS_URI = "/getPhones";
 const PHONES = "phones";
+const DEFAULT_IMG_LOC = "../../img/jpg";
 let phoneTypeList = undefined;
 
 let simpleParameter = [];
@@ -93,7 +96,7 @@ class MainPanel extends React.Component {
         this.setState({
             changed: true
         });
-        console.log("onSubmit");
+        console.log("onSub");
         this.renderCardPanel();
     };
 
@@ -132,8 +135,7 @@ class MainPanel extends React.Component {
 
     onChInpAccEnd = (event) => {
         event.preventDefault();
-        this.setState({accumEnd: event.target.value})
-        console.log(this.state)
+        this.setState({accumEnd: event.target.value});
     };
 
     renderCardPanel = () => {
@@ -245,6 +247,8 @@ class MainPanel extends React.Component {
                             vendor={phone.model.vendor}
                             model={phone.model.modelName}
                             description={phone.model.description}
+                            imgLocation={phone.images.imageLocationList[0]}
+                            getPhoneInfo={this.getPhoneInfo}
                         />
                     )
                 })
@@ -292,54 +296,90 @@ class MainPanel extends React.Component {
         const data = await apiUrl.json();
         console.log(data);
         phoneTypeList = data.phoneTypeList.map(item => item);
+
+        if (phoneTypeList.length > 0) {
+            this.setState({
+                phones: phoneTypeList.map(phone => {
+                    return (
+                        <RowCard
+                            id={phone.model.modelId}
+                            vendor={phone.model.vendor}
+                            model={phone.model.modelName}
+                            description={phone.model.description}
+                            price={phone.model.price}
+                            imgLocation={phone.images.imageLocationList[0]}
+                            getPhoneInfo={this.getPhoneInfo}
+                        />
+                    )
+                })
+            });
+        } else {
+            this.setState({
+                phones: <h1>Поиск не дал результатов</h1>
+            })
+        }
+        console.log(this.state.phones);
+    };
+
+    getPhoneInfo = async (event) => {
+        event.preventDefault();
+        const id = event.target.elements.id.value;
+        const apiUrl = await fetch(`${BASE_URI}/phone?id=${id}`);
+        const data = await apiUrl.json();
+        phoneTypeList = data.phoneTypeList.map(item => item);
+        console.log("getPhoneInfo");
         this.setState({
             phones: phoneTypeList.map(phone => {
                 return (
-                    <RowCard
+                    <PhoneInfo
                         id={phone.model.modelId}
                         vendor={phone.model.vendor}
                         model={phone.model.modelName}
                         description={phone.model.description}
                         price={phone.model.price}
+                        detailList={phone.details}
+                        imageList={phone.images.imageLocationList}
                     />
                 )
             })
         });
-        console.log(this.state.phones);
     };
 
     render() {
         return (
-            <div className="container-fluid main">
-                <div className="row main-row">
-                    <div className="col-md-2">
-                        <FilterPanel
-                            foreingState={this.state}
-                            onChInpPriceBeg={this.onChInpPriceBeg}
-                            onChInpPriceEnd={this.onChInpPriceEnd}
-                            togChVenAcer={this.togChVenAcer}
-                            togChVenFly={this.togChVenFly}
-                            togChTypePhone={this.togChTypePhone}
-                            togChTypeSmart={this.togChTypeSmart}
-                            togChRam05={this.togChRam05}
-                            togChRam1={this.togChRam1}
-                            onChInpAccBeg={this.onChInpAccBeg}
-                            onChInpAccEnd={this.onChInpAccEnd}
-                            togChSim1={this.togChSim1}
-                            togChSim2={this.togChSim2}
-                            onSubmit={this.onSubmit}
-                            onClear={this.onClear}
-                        />
-                    </div>
-                    <div className="col-md-8">
-                        {!this.state.changed &&
+            <div>
+                <Head/>
+                <div className="container-fluid main">
+                    <div className="row main-row">
+                        <div className="col-md-2">
+                            <FilterPanel
+                                foreingState={this.state}
+                                onChInpPriceBeg={this.onChInpPriceBeg}
+                                onChInpPriceEnd={this.onChInpPriceEnd}
+                                togChVenAcer={this.togChVenAcer}
+                                togChVenFly={this.togChVenFly}
+                                togChTypePhone={this.togChTypePhone}
+                                togChTypeSmart={this.togChTypeSmart}
+                                togChRam05={this.togChRam05}
+                                togChRam1={this.togChRam1}
+                                onChInpAccBeg={this.onChInpAccBeg}
+                                onChInpAccEnd={this.onChInpAccEnd}
+                                togChSim1={this.togChSim1}
+                                togChSim2={this.togChSim2}
+                                onSubmit={this.onSubmit}
+                                onClear={this.onClear}
+                            />
+                        </div>
+                        <div className="col-md-8">
+                            {!this.state.changed &&
                             <div className="row">
                                 {this.state.phones}
                             </div>
-                        }
-                        {this.state.changed &&
+                            }
+                            {this.state.changed &&
                             this.state.phones
-                        }
+                            }
+                        </div>
                     </div>
                 </div>
             </div>

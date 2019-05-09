@@ -48,7 +48,6 @@ class App extends React.Component {
     render() {
         return (
             <div className="wrapper">
-                <Head />
                 <MainPanel />{/*<div className="main">*/}
                 {/*<div className="container">*/}
                 {/*<div className="row">*/}
