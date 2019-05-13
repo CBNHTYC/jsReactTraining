@@ -5,6 +5,15 @@ import FilterPanel from "./FilterPanel";
 import RowCard from "./RowCard";
 import Head from "../Head";
 import PhoneInfo from "./PhoneInfo";
+import Sort from "./Sort";
+
+const SORT_PRICE_UP = "priceUp";
+const SORT_PRICE_DOWN = "priceDown";
+const SORT_NAME_UP = "nameUp";
+const SORT_NAME_DOWN = "nameDown";
+const SORT_VIEWS_UP = "viewsUp";
+const SORT_VIEWS_DOWN = "viewsDown";
+
 
 const BASE_URI = "http://localhost:8080/fc/rest";
 const MOST_VIEWED_URI = "/getMostViewedPhoneList";
@@ -22,6 +31,7 @@ class MainPanel extends React.Component {
         super();
         this.state = {
             changed: false,
+            phoneTypeList: undefined,
             phones: undefined,
             ParametrizedQuery: [],
             isVenAcer: false,
@@ -184,13 +194,13 @@ class MainPanel extends React.Component {
         }
 
         if (this.state.isSim1) {
-            singleParam = {name: "sim", value: "есть"};
+            singleParam = {name: "sim", value: "нет"};
             simpleParameter.push(singleParam);
             changed = true;
         }
 
         if (this.state.isSim2) {
-            singleParam = {name: "sim", value: "нет"};
+            singleParam = {name: "sim", value: "есть"};
             simpleParameter.push(singleParam);
             changed = true;
         }
@@ -247,6 +257,7 @@ class MainPanel extends React.Component {
                             vendor={phone.model.vendor}
                             model={phone.model.modelName}
                             description={phone.model.description}
+                            price={phone.model.price}
                             imgLocation={phone.images.imageLocationList[0]}
                             getPhoneInfo={this.getPhoneInfo}
                         />
@@ -299,6 +310,7 @@ class MainPanel extends React.Component {
 
         if (phoneTypeList.length > 0) {
             this.setState({
+                phoneTypeList: phoneTypeList,
                 phones: phoneTypeList.map(phone => {
                     return (
                         <RowCard
@@ -345,10 +357,107 @@ class MainPanel extends React.Component {
         });
     };
 
+    searchPhone = async (event) => {
+        console.log("searchPhone");
+        event.preventDefault();
+        const textQuery = event.target.elements.searchField.value;
+        const apiUrl = await fetch(`${BASE_URI}/search?query=${textQuery}`);
+        const data = await apiUrl.json();
+        phoneTypeList = data.phoneTypeList.map(item => item);
+        console.log("phonesSearched");
+        this.setState({
+            phoneTypeList: phoneTypeList,
+            phones: phoneTypeList.map(phone => {
+                return (
+                    <RowCard
+                        id={phone.model.modelId}
+                        vendor={phone.model.vendor}
+                        model={phone.model.modelName}
+                        description={phone.model.description}
+                        price={phone.model.price}
+                        imgLocation={phone.images.imageLocationList[0]}
+                        getPhoneInfo={this.getPhoneInfo}
+                    />
+                )
+            }),
+            changed: true
+        });
+    };
+
+    dynamicSort(group, field) {
+        let sortOrder = 1;
+        if (field[0] === "-") {
+            sortOrder = -1;
+            field = field.substr(1);
+        }
+        return function (a, b) {
+            let result = (a[group][field] < b[group][field]) ? -1 : (a[group][field] > b[group][field]) ? 1 : 0;
+            return result * sortOrder;
+        }
+    };
+
+    sortRowPhones = (type, event) => {
+        event.preventDefault();
+        console.log("sortRowPhones");
+        let sortedList;
+        let sorted = false;
+
+        if (type === SORT_PRICE_UP) {
+            let phoneTypeList = this.state.phoneTypeList;
+            sortedList = phoneTypeList.sort(this.dynamicSort("model", "price"));
+            sorted = true;
+        }
+
+        if (type === SORT_PRICE_DOWN) {
+            let phoneTypeList = this.state.phoneTypeList;
+            sortedList = phoneTypeList.sort(this.dynamicSort("model", "-price"));
+            sorted = true;
+        }
+
+        if (type === SORT_NAME_UP) {
+            let phoneTypeList = this.state.phoneTypeList;
+            sortedList = phoneTypeList.sort(this.dynamicSort("model", "fullName"));
+            sorted = true;
+        }
+
+        if (type === SORT_NAME_DOWN) {
+            let phoneTypeList = this.state.phoneTypeList;
+            sortedList = phoneTypeList.sort(this.dynamicSort("model", "-fullName"));
+            sorted = true;
+        }
+
+        if (type === SORT_VIEWS_DOWN) {
+            console.log("SORT_VIEWS_DOWN");
+            let phoneTypeList = this.state.phoneTypeList;
+            sortedList = phoneTypeList.sort(this.dynamicSort("model", "-views"));
+            sorted = true;
+        }
+
+        if (sorted) {
+            this.setState({
+                phones: sortedList.map(phone => {
+                    return (
+                        <RowCard
+                            id={phone.model.modelId}
+                            vendor={phone.model.vendor}
+                            model={phone.model.modelName}
+                            description={phone.model.description}
+                            price={phone.model.price}
+                            imgLocation={phone.images.imageLocationList[0]}
+                            getPhoneInfo={this.getPhoneInfo}
+                        />
+                    )
+                })
+            });
+        }
+    };
+
     render() {
         return (
             <div>
-                <Head/>
+                <Head
+                    searchPhone={this.searchPhone}
+                />
                 <div className="container-fluid main">
                     <div className="row main-row">
                         <div className="col-md-2">
@@ -370,11 +479,22 @@ class MainPanel extends React.Component {
                                 onClear={this.onClear}
                             />
                         </div>
-                        <div className="col-md-8">
+                        <div className="col-md-9">
                             {!this.state.changed &&
                             <div className="row">
                                 {this.state.phones}
                             </div>
+                            }
+                            {this.state.changed &&
+                            <Sort
+                                sort={this.sortRowPhones}
+                                priceUp={SORT_PRICE_UP}
+                                priceDown={SORT_PRICE_DOWN}
+                                nameUp={SORT_NAME_UP}
+                                nameDown={SORT_NAME_DOWN}
+                                viewsUp={SORT_VIEWS_UP}
+                                viewsDown={SORT_VIEWS_DOWN}
+                            />
                             }
                             {this.state.changed &&
                             this.state.phones

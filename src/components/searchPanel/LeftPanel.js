@@ -25,12 +25,13 @@ class LeftPanel extends React.Component {
         this.setState({
             detailNameComponent: detailDtoList.map(detail => {
                 return (
-                    <DetailName
-                        id={detail.detailId}
-                        name={detail.name}
-                        values={detail.elastDetailValueList}
-                        key={detail.id}
-                    />
+                    <div></div>
+                   // {/*<DetailName*/}
+                     //   {/*id={detail.detailId}*/}
+                        //{/*name={detail.name}*/}
+                       // {/*values={detail.elastDetailValueList}*/}
+                        // {/*key={detail.id}*/}
+                    //{/*/>*/}
                 )
             })
         })

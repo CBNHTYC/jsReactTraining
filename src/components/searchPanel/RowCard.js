@@ -12,9 +12,7 @@ const RowCard = (props) => {
                     <div className="card-body">
                         <h5 className="card-title">{props.vendor} {props.model}</h5>
                         <p className="card-text">{props.description}</p>
-                        <p className="card-text">
-                            <small className="text-muted">{props.price}</small>
-                        </p>
+                        <p className="card-text text-muted">{props.price}</p>
                         <form onSubmit={props.getPhoneInfo}>
                             <button className="btn btn-outline-dark">Подробнее</button>
                             <input type="text" name="id" defaultValue={props.id} hidden={true}/>
