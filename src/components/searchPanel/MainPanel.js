@@ -20,7 +20,7 @@ const MOST_VIEWED_URI = "/getMostViewedPhoneList";
 const GET_BY_PARAMS_URI = "/getPhones";
 const PHONES = "phones";
 const DEFAULT_IMG_LOC = "../../img/jpg";
-let phoneTypeList = undefined;
+let accessTypeList = undefined;
 
 let simpleParameter = [];
 let rangeParameter = [];
@@ -248,9 +248,9 @@ class MainPanel extends React.Component {
         try {
             const apiUrl = await fetch(`${BASE_URI}${MOST_VIEWED_URI}`);
             const data = await apiUrl.json();
-            phoneTypeList = data.phoneTypeList.map(item => item);
+            accessTypeList = data.phoneTypeList.map(item => item);
             this.setState({
-                phones: phoneTypeList.map(phone => {
+                phones: accessTypeList.map(phone => {
                     return (
                         <Card
                             id={phone.model.modelId}
@@ -306,12 +306,12 @@ class MainPanel extends React.Component {
         });
         const data = await apiUrl.json();
         console.log(data);
-        phoneTypeList = data.phoneTypeList.map(item => item);
+        accessTypeList = data.phoneTypeList.map(item => item);
 
-        if (phoneTypeList.length > 0) {
+        if (accessTypeList.length > 0) {
             this.setState({
-                phoneTypeList: phoneTypeList,
-                phones: phoneTypeList.map(phone => {
+                phoneTypeList: accessTypeList,
+                phones: accessTypeList.map(phone => {
                     return (
                         <RowCard
                             id={phone.model.modelId}
@@ -338,10 +338,9 @@ class MainPanel extends React.Component {
         const id = event.target.elements.id.value;
         const apiUrl = await fetch(`${BASE_URI}/phone?id=${id}`);
         const data = await apiUrl.json();
-        phoneTypeList = data.phoneTypeList.map(item => item);
-        console.log("getPhoneInfo");
+        accessTypeList = data.phoneTypeList.map(item => item);
         this.setState({
-            phones: phoneTypeList.map(phone => {
+            phones: accessTypeList.map(phone => {
                 return (
                     <PhoneInfo
                         id={phone.model.modelId}
@@ -351,6 +350,32 @@ class MainPanel extends React.Component {
                         price={phone.model.price}
                         detailList={phone.details}
                         imageList={phone.images.imageLocationList}
+                        getAccessInfo={this.getAccessInfo}
+                        accessoryList={phone.accessories}
+                    />
+                )
+            })
+        });
+    };
+
+    getAccessInfo = async (event) => {
+        event.preventDefault();
+        const id = event.target.elements.id.value;
+        const apiUrl = await fetch(`${BASE_URI}/accessory?id=${id}`);
+        const data = await apiUrl.json();
+        accessTypeList = data.accessTypeList.map(item => item);
+        console.log("getaccessInfo");
+        this.setState({
+            phones: accessTypeList.map(access => {
+                return (
+                    <PhoneInfo
+                        id={access.model.modelId}
+                        vendor={access.model.vendor}
+                        model={access.model.modelName}
+                        description={access.model.description}
+                        price={access.model.price}
+                        detailList={access.details}
+                        imageList={access.images.imageLocationList}
                     />
                 )
             })
@@ -363,11 +388,11 @@ class MainPanel extends React.Component {
         const textQuery = event.target.elements.searchField.value;
         const apiUrl = await fetch(`${BASE_URI}/search?query=${textQuery}`);
         const data = await apiUrl.json();
-        phoneTypeList = data.phoneTypeList.map(item => item);
+        accessTypeList = data.phoneTypeList.map(item => item);
         console.log("phonesSearched");
         this.setState({
-            phoneTypeList: phoneTypeList,
-            phones: phoneTypeList.map(phone => {
+            phoneTypeList: accessTypeList,
+            phones: accessTypeList.map(phone => {
                 return (
                     <RowCard
                         id={phone.model.modelId}

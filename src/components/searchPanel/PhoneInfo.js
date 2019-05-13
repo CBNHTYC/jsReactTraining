@@ -1,5 +1,7 @@
 import React from "react";
 import './css/PhoneInfo.css';
+import 'jquery';
+import Card from "./Card";
 
 class PhoneInfo extends React.Component {
 
@@ -7,21 +9,44 @@ class PhoneInfo extends React.Component {
         super();
         this.state = {
             imageList: undefined,
-            detailList: undefined
+            detailList: undefined,
+            accessoryLisList: undefined
         };
     };
 
     componentDidMount() {
         this.setImageList();
+        this.setAccessList();
     }
 
     setImageList = () => {
+        let imageList = this.props.imageList.slice(1);
         this.setState({
-            imageList: this.props.imageList.map(image => {
+            imageList: imageList.map(image => {
                 return (
                     <div className="carousel-item">
                         <img src={require(`../../img/jpg/${image.toString()}`)} className="d-block w-100" alt="..."/>
                     </div>
+                )
+            })
+        });
+    };
+
+    setAccessList = () => {
+        let accessList = this.props.accessoryList;
+
+        this.setState({
+            accessoryList: accessList.map(access => {
+                return (
+                        <Card
+                            id={access.model.modelId}
+                            vendor={access.model.vendor}
+                            model={access.model.modelName}
+                            description=""
+                            price={access.model.price}
+                            imgLocation={access.images.imageLocationList[0]}
+                            getPhoneInfo={this.props.getAccessInfo}
+                        />
                 )
             })
         });
@@ -113,7 +138,38 @@ class PhoneInfo extends React.Component {
                         </tbody>
                     </table>
                 </div>
-            </div>
+                    <div className="card mb-3 access">
+                        <nav className="navbar navbar-expand-lg navbar-light bg-light justify-content-center">
+                            <a className="navbar-brand" href="#">Рекомендуемые позиции</a>
+                        </nav>
+                        <div className="row mx-auto my-auto justify-content-center">
+                            <div id="carouselExampleFade" className="carousel slide carousel-fade"
+                                 data-ride="carousel">
+                                <div className="carousel-inner">
+                                    <div className="carousel-inner">
+                                        <div className="carousel-item active">
+                                            <div className="row">
+                                                {this.state.accessoryList}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a className="carousel-control-prev accCorusPrev" href="#carouselExampleFade"
+                                   role="button"
+                                   data-slide="prev">
+                                    <span className="carousel-control-prev-icon" aria-hidden="true"/>
+                                    <span className="sr-only">Previous</span>
+                                </a>
+                                <a className="carousel-control-next accCorusNext" href="#carouselExampleFade"
+                                   role="button"
+                                   data-slide="next">
+                                    <span className="carousel-control-next-icon" aria-hidden="true"/>
+                                    <span className="sr-only">Next</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
         );
     }
 }

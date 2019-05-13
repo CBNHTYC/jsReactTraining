@@ -20,3 +20,11 @@
     width: 70em;
     max-height: 25em;
 }
+
+.accCorusNext{
+   right: -8em !important;
+}
+
+.accCorusPrev{
+    left: -8em !important;
+}
