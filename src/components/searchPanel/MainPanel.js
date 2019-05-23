@@ -6,6 +6,8 @@ import RowCard from "./RowCard";
 import Head from "../Head";
 import PhoneInfo from "./PhoneInfo";
 import Sort from "./Sort";
+import AccessInfo from "./AccessInfo";
+import AdditRowCard from "./AdditRowCard";
 
 const SORT_PRICE_UP = "priceUp";
 const SORT_PRICE_DOWN = "priceDown";
@@ -305,30 +307,40 @@ class MainPanel extends React.Component {
             body: JSON.stringify(query)
         });
         const data = await apiUrl.json();
-        console.log(data);
-        accessTypeList = data.phoneTypeList.map(item => item);
-
-        if (accessTypeList.length > 0) {
-            this.setState({
-                phoneTypeList: accessTypeList,
-                phones: accessTypeList.map(phone => {
-                    return (
-                        <RowCard
-                            id={phone.model.modelId}
-                            vendor={phone.model.vendor}
-                            model={phone.model.modelName}
-                            description={phone.model.description}
-                            price={phone.model.price}
-                            imgLocation={phone.images.imageLocationList[0]}
-                            getPhoneInfo={this.getPhoneInfo}
+        try {
+            accessTypeList = data.phoneTypeList.map(item => item);
+            if (accessTypeList.length > 0) {
+                this.setState({
+                    phoneTypeList: accessTypeList,
+                    phones: accessTypeList.map(phone => {
+                        return (
+                            <RowCard
+                                id={phone.model.modelId}
+                                vendor={phone.model.vendor}
+                                model={phone.model.modelName}
+                                description={phone.model.description}
+                                price={phone.model.price}
+                                imgLocation={phone.images.imageLocationList[0]}
+                                getPhoneInfo={this.getPhoneInfo}
+                            />
+                        )
+                    })
+                });
+            }
+        } catch (e) {
+        }
+        try {
+            let additTypeList = data.additionalList.map(item => item);
+            if (additTypeList.length > 0) {
+                this.setState({
+                    phoneTypeList: additTypeList,
+                    phones:
+                        <AdditRowCard
+                            typeList={additTypeList}
                         />
-                    )
-                })
-            });
-        } else {
-            this.setState({
-                phones: <h1>Поиск не дал результатов</h1>
-            })
+                });
+            }
+        } catch (e) {
         }
         console.log(this.state.phones);
     };
@@ -362,13 +374,14 @@ class MainPanel extends React.Component {
         event.preventDefault();
         const id = event.target.elements.id.value;
         const apiUrl = await fetch(`${BASE_URI}/accessory?id=${id}`);
+        console.log("lkjlkb");
         const data = await apiUrl.json();
-        accessTypeList = data.accessTypeList.map(item => item);
+        accessTypeList = data.phoneTypeList.map(item => item);
         console.log("getaccessInfo");
         this.setState({
             phones: accessTypeList.map(access => {
                 return (
-                    <PhoneInfo
+                    <AccessInfo
                         id={access.model.modelId}
                         vendor={access.model.vendor}
                         model={access.model.modelName}

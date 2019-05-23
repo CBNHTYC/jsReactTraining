@@ -21,10 +21,14 @@
     max-height: 25em;
 }
 
-.accCorusNext{
+.accCorusNext {
    right: -8em !important;
 }
 
-.accCorusPrev{
+.accCorusPrev {
     left: -8em !important;
+}
+
+.d-block.w-100 {
+    max-height: 22em;
 }
