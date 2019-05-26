@@ -1,9 +1,4 @@
 import React from 'react';
-import Info from "./components/Info";
-import Form from "./components/Form";
-import Detail from "./components/Detail";
-import DetailSimple from "./components/DetailSimple";
-import Head from "./components/Head";
 import MainPanel from "./components/searchPanel/MainPanel";
 
 
@@ -48,7 +43,7 @@ class App extends React.Component {
     render() {
         return (
             <div className="wrapper">
-                <MainPanel />{/*<div className="main">*/}
+                <MainPanel/>{/*<div className="main">*/}
                 {/*<div className="container">*/}
                 {/*<div className="row">*/}
                 {/*<div className="col-sm-5 info">*/}

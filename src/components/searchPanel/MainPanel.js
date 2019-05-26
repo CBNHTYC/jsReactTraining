@@ -18,9 +18,10 @@ const SORT_VIEWS_DOWN = "viewsDown";
 
 
 const BASE_URI = "http://localhost:8080/fc/rest";
-const MOST_VIEWED_URI = "/getMostViewedPhoneList";
+const MOST_VIEWED_URI = "/getRecommendedPhoneList";
 const GET_BY_PARAMS_URI = "/getPhones";
 const PHONES = "phones";
+const PHONE_BY_ID = "phone";
 const DEFAULT_IMG_LOC = "../../img/jpg";
 let accessTypeList = undefined;
 
@@ -32,6 +33,11 @@ class MainPanel extends React.Component {
     constructor() {
         super();
         this.state = {
+            user: {
+                userId: '',
+                email: '',
+                authPanel: undefined
+            },
             changed: false,
             phoneTypeList: undefined,
             phones: undefined,
@@ -52,6 +58,7 @@ class MainPanel extends React.Component {
     };
 
     componentDidMount() {
+        this.renderAuthPanel();
         this.renderCardPanel();
     };
 
@@ -148,6 +155,28 @@ class MainPanel extends React.Component {
     onChInpAccEnd = (event) => {
         event.preventDefault();
         this.setState({accumEnd: event.target.value});
+    };
+
+    renderAuthPanel = () => {
+        this.setState({
+            user: {
+                userId: '',
+                email: '',
+                authPanel:
+                    <form className="form-inline auth my-2 my-lg-0" onSubmit={this.getUser}>
+                        <div className="input-group mb-2 mr-sm-2">
+                            <div className="input-group-prepend">
+                                <div className="input-group-text">@</div>
+                            </div>
+                            <input type="search" className="form-control" id="inlineFormInputGroupUsername"
+                                   placeholder="Email" name="username"/>
+                        </div>
+                        <input type="search" className="form-control mb-2 mr-sm-2" id="inlineFormInputPassword"
+                               placeholder="Password" name="password"/>
+                        <button type="submit" className="btn btn-outline-success mb-2">Submit</button>
+                    </form>
+            }
+        })
     };
 
     renderCardPanel = () => {
@@ -248,7 +277,7 @@ class MainPanel extends React.Component {
 
     getDefault = async () => {
         try {
-            const apiUrl = await fetch(`${BASE_URI}${MOST_VIEWED_URI}`);
+            const apiUrl = await fetch(`${BASE_URI}${MOST_VIEWED_URI}?userId=${this.state.user.userId}`);
             const data = await apiUrl.json();
             accessTypeList = data.phoneTypeList.map(item => item);
             this.setState({
@@ -348,7 +377,7 @@ class MainPanel extends React.Component {
     getPhoneInfo = async (event) => {
         event.preventDefault();
         const id = event.target.elements.id.value;
-        const apiUrl = await fetch(`${BASE_URI}/phone?id=${id}`);
+        const apiUrl = await fetch(`${BASE_URI}/${PHONE_BY_ID}?id=${id}&userId=${this.state.user.userId}`);
         const data = await apiUrl.json();
         accessTypeList = data.phoneTypeList.map(item => item);
         this.setState({
@@ -490,11 +519,50 @@ class MainPanel extends React.Component {
         }
     };
 
+    getUser = async (event) => {
+        event.preventDefault();
+        let email = event.target.elements.username.value;
+        let password = event.target.elements.password.value;
+        if (email !== '' && password !== '') {
+            const apiUrl = await fetch(`${BASE_URI}/login?email=${email}&password=${password}`);
+            const data = await apiUrl.json();
+            try {
+                let userId = data.userId;
+                email = data.email;
+                this.setState({
+                    user: {
+                        userId: userId,
+                        password: password,
+                        authPanel:
+                            <form className="form-inline authenticated my-2 my-lg-0" onSubmit={this.logout}>
+                                <ul className="navbar-nav mr-auto">
+                                    <li className="nav-item active">
+                                        <a className="nav-link" href="#">{email}</a>
+                                    </li>
+                                </ul>
+                                <button type="submit" className="btn btn-outline-success mb-2">Выход</button>
+                            </form>
+                    }
+                });
+                await this.getDefault();
+            } catch (e) {
+                console.log(e);
+            }
+        }
+        console.log(`email+password ${email},${password}`)
+    };
+
+    logout =(event) => {
+        event.preventDefault();
+        this.renderAuthPanel();
+    };
+
     render() {
         return (
             <div>
                 <Head
                     searchPhone={this.searchPhone}
+                    authPanel={this.state.user.authPanel}
                 />
                 <div className="container-fluid main">
                     <div className="row main-row">
